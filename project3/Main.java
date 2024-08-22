@@ -1421,7 +1421,7 @@ class ExpressionEvaluator {
     private Object lessOrEqual(Object leftValue, Object rightValue) {
         if (leftValue instanceof Number && rightValue instanceof Number) {
             // cast to double is more precise
-            return ((Number) leftValue).doubleValue() >= ((Number) rightValue).doubleValue();
+            return ((Number) leftValue).doubleValue() <= ((Number) rightValue).doubleValue();
         } else {
             throw new IllegalArgumentException("Unsupported types for LE operator.");
         }
@@ -5648,7 +5648,8 @@ class Parser {
             case LE:
                 return 7;
 
-            case PLUS: case MINUS:
+            case PLUS: 
+            case MINUS:
                 return 8;
 
             case MULTIPLY: 
