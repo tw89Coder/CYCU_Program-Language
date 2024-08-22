@@ -706,11 +706,13 @@ class AssignmentExpression extends ExpressionNode {
         if (expression == null) {
             // variable
             leftValue = evaluator.convertVariable(variable.getValue(), variable.getType());
+            leftValueType = variable.getType();
         } else {
             // array
             index = String.valueOf(expression.getOutput());
             String value = array.getValueAtIndex(String.valueOf(index));
             leftValue = evaluator.convertVariable(value, array.getType());
+            leftValueType = array.getType();
         }
 
         switch (operator) {
@@ -744,7 +746,7 @@ class AssignmentExpression extends ExpressionNode {
         }
 
         // cast type to left value type
-        output = evaluator.convertVariable(String.valueOf(output), leftValueType);
+        output = evaluator.typeCast(output, leftValueType);
 
         if (expression == null) {
             // variable store
@@ -1172,6 +1174,8 @@ class ExpressionEvaluator {
     }
 
     // Method to convert variable based on TokenType
+    // * Only can use when you must know what type of variable in the string.
+    // * tokenType is value's type.
     public Object convertVariable(String value, TokenType tokenType) { // TODO
         switch (tokenType) {
             case BOOL:
@@ -1181,10 +1185,67 @@ class ExpressionEvaluator {
             case FLOAT:
                 return Float.parseFloat(value);
             case CHAR:
+                if (value == null || value.isEmpty()) {
+                    return "";
+                }
+
                 return parseChar(value);
             default:
                 return value;
         }
+    }
+
+    // tokenType is what value needs to be cast to
+    public Object typeCast(Object value, TokenType tokenType) {
+        switch (tokenType) {
+            case BOOL:
+                if (value instanceof Boolean) {
+                    return (Boolean) value;
+                } else {
+                    throw new IllegalArgumentException("Bool can not cast: " + value);
+                }
+
+            case INT:
+                if (value instanceof Integer) {
+                    return (Integer) value;
+                } else if (value instanceof Float) {
+                    return (Integer) ((Float) value).intValue();
+                } else if (value instanceof Character) {
+                    return (int) (char) value;
+                } else {
+                    throw new IllegalArgumentException("Int can not cast: " + value);
+                }
+
+            case FLOAT:
+                if (value instanceof Float) {
+                    return (Float) value;
+                } else if (value instanceof Integer) {
+                    return (Float) ((Integer) value).floatValue();
+                } else if (value instanceof Character) {
+                    return (float) (char) value;
+                } else {
+                    throw new IllegalArgumentException("Float can not cast: " + value);
+                }
+
+            case CHAR:
+                if (value instanceof Character) {
+                    return (Character) value;
+                } else {
+                    throw new IllegalArgumentException("Char can not cast: " + value);
+                }
+
+            case STRING:
+                if (value instanceof String) {
+                    return (String) value;
+                } else if ((value instanceof Character)) {
+                    return String.valueOf(value);
+                } else {
+                    throw new IllegalArgumentException("String can not cast: " + value);
+                }
+
+            default:
+                throw new UnsupportedOperationException("Unsupported tokenType: " + tokenType);
+        }        
     }
 
     public TokenType determineTokenType(Object value) {
@@ -1237,7 +1298,7 @@ class ExpressionEvaluator {
         }
     }    
 
-    // TODO
+    // %, &, | , ^, <<, >> must be integer
     private Object add(Object leftValue, Object rightValue) {
         if (leftValue instanceof Number && rightValue instanceof Number) {
             if (leftValue instanceof Float || rightValue instanceof Float) {
@@ -1245,98 +1306,119 @@ class ExpressionEvaluator {
             } else {
                 return ((Number) leftValue).intValue() + ((Number) rightValue).intValue();
             }
-        } else if (leftValue instanceof Boolean || rightValue instanceof Boolean) {
-            throw new IllegalArgumentException("Cannot perform addition on two Boolean values.");
-        } else {
+        } else if (leftValue instanceof String || rightValue instanceof String) {
             return leftValue.toString() + rightValue.toString();
+        } else {
+            throw new IllegalArgumentException("Cannot perform addition on two Boolean values, two Char values, etc.");
         }
     }
 
     private Object subtract(Object leftValue, Object rightValue) {
         if (leftValue instanceof Number && rightValue instanceof Number) {
-            return ((Number) leftValue).doubleValue() - ((Number) rightValue).doubleValue();
+            if (leftValue instanceof Float || rightValue instanceof Float) {
+                return ((Number) leftValue).floatValue() - ((Number) rightValue).floatValue();
+            } else {
+                return ((Number) leftValue).intValue() - ((Number) rightValue).intValue();
+            }
+        } else if (leftValue instanceof String || rightValue instanceof String) {
+            return leftValue.toString() + rightValue.toString();
         } else {
-            throw new IllegalArgumentException("Unsupported types for MINUS operator.");
+            throw new IllegalArgumentException("Cannot perform subtract on two Boolean values, two Char values, etc.");
         }
     }
 
     private Object multiply(Object leftValue, Object rightValue) {
         if (leftValue instanceof Number && rightValue instanceof Number) {
-            return ((Number) leftValue).doubleValue() * ((Number) rightValue).doubleValue();
+            if (leftValue instanceof Float || rightValue instanceof Float) {
+                return ((Number) leftValue).floatValue() * ((Number) rightValue).floatValue();
+            } else {
+                return ((Number) leftValue).intValue() * ((Number) rightValue).intValue();
+            }
+        } else if (leftValue instanceof String || rightValue instanceof String) {
+            return leftValue.toString() + rightValue.toString();
         } else {
-            throw new IllegalArgumentException("Unsupported types for MULTIPLY operator.");
+            throw new IllegalArgumentException("Cannot perform subtract on two Boolean values, two Char values, etc.");
         }
     }
 
     private Object divide(Object leftValue, Object rightValue) {
         if (leftValue instanceof Number && rightValue instanceof Number) {
-            double rightDouble = ((Number) rightValue).doubleValue();
-            if (rightDouble == 0) {
-                throw new ArithmeticException("Division by zero.");
+            if (leftValue instanceof Float || rightValue instanceof Float) {
+                return ((Number) leftValue).floatValue() / ((Number) rightValue).floatValue();
+            } else {
+                return ((Number) leftValue).intValue() / ((Number) rightValue).intValue();
             }
-            return ((Number) leftValue).doubleValue() / rightDouble;
+        } else if (leftValue instanceof String || rightValue instanceof String) {
+            return leftValue.toString() + rightValue.toString();
         } else {
-            throw new IllegalArgumentException("Unsupported types for DIVIDE operator.");
+            throw new IllegalArgumentException("Cannot perform subtract on two Boolean values, two Char values, etc.");
         }
     }
 
     private Object mod(Object leftValue, Object rightValue) {
-        if (leftValue instanceof Number && rightValue instanceof Number) {
-            double rightDouble = ((Number) rightValue).doubleValue();
-            if (rightDouble == 0) {
-                throw new ArithmeticException("Modulo by zero.");
-            }
-            return ((Number) leftValue).doubleValue() % rightDouble;
+        if (leftValue instanceof Integer && rightValue instanceof Integer) {
+            int result = ((Integer) leftValue).intValue() % ((Integer) rightValue).intValue();
+            return result;
         } else {
             throw new IllegalArgumentException("Unsupported types for MOD operator.");
         }
     }
 
     private Object equals(Object leftValue, Object rightValue) {
-        return leftValue.equals(rightValue);
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() == ((Number) rightValue).doubleValue();
+        } else if (leftValue instanceof Boolean && rightValue instanceof Boolean) {
+            return leftValue == rightValue;
+        } else {
+            throw new IllegalArgumentException("Unsupported types for EQ operator.");
+        }
     }
 
     private Object notEquals(Object leftValue, Object rightValue) {
-        return !leftValue.equals(rightValue);
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() != ((Number) rightValue).doubleValue();
+        } else if (leftValue instanceof Boolean && rightValue instanceof Boolean) {
+            return leftValue != rightValue;
+        } else {
+            throw new IllegalArgumentException("Unsupported types for NEQ operator.");
+        }
     }
 
     private Object greaterThan(Object leftValue, Object rightValue) {
-        if (leftValue instanceof Comparable && rightValue != null) {
-            @SuppressWarnings("unchecked")
-            Comparable<Object> leftComparable = (Comparable<Object>) leftValue;
-            return leftComparable.compareTo(rightValue) > 0;
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() > ((Number) rightValue).doubleValue();
         } else {
             throw new IllegalArgumentException("Unsupported types for GREATER_THAN operator.");
         }
     }
 
     private Object lessThan(Object leftValue, Object rightValue) {
-        if (leftValue instanceof Comparable && rightValue != null) {
-            @SuppressWarnings("unchecked")
-            Comparable<Object> leftComparable = (Comparable<Object>) leftValue;
-            return leftComparable.compareTo(rightValue) < 0;
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() < ((Number) rightValue).doubleValue();
         } else {
             throw new IllegalArgumentException("Unsupported types for LESS_THAN operator.");
         }
     }
 
     private Object greaterOrEqual(Object leftValue, Object rightValue) {
-        if (leftValue instanceof Comparable && rightValue != null) {
-            @SuppressWarnings("unchecked")
-            Comparable<Object> leftComparable = (Comparable<Object>) leftValue;
-            return leftComparable.compareTo(rightValue) >= 0;
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() >= ((Number) rightValue).doubleValue();
         } else {
-            throw new IllegalArgumentException("Unsupported types for GREATER_EQUAL operator.");
+            throw new IllegalArgumentException("Unsupported types for GE operator.");
         }
     }
 
     private Object lessOrEqual(Object leftValue, Object rightValue) {
-        if (leftValue instanceof Comparable && rightValue != null) {
-            @SuppressWarnings("unchecked")
-            Comparable<Object> leftComparable = (Comparable<Object>) leftValue;
-            return leftComparable.compareTo(rightValue) <= 0;
+        if (leftValue instanceof Number && rightValue instanceof Number) {
+            // cast to double is more precise
+            return ((Number) leftValue).doubleValue() >= ((Number) rightValue).doubleValue();
         } else {
-            throw new IllegalArgumentException("Unsupported types for LESS_EQUAL operator.");
+            throw new IllegalArgumentException("Unsupported types for LE operator.");
         }
     }
 
@@ -1360,7 +1442,7 @@ class ExpressionEvaluator {
         if (leftValue instanceof Integer && rightValue instanceof Integer) {
             return (Integer) leftValue << (Integer) rightValue;
         } else {
-            throw new IllegalArgumentException("Unsupported types for LEFT_SHIFT operator.");
+            throw new IllegalArgumentException("Unsupported types for LS operator.");
         }
     }
 
@@ -1368,16 +1450,12 @@ class ExpressionEvaluator {
         if (leftValue instanceof Integer && rightValue instanceof Integer) {
             return (Integer) leftValue >> (Integer) rightValue;
         } else {
-            throw new IllegalArgumentException("Unsupported types for RIGHT_SHIFT operator.");
+            throw new IllegalArgumentException("Unsupported types for RS operator.");
         }
     }
 
     // Helper method to handle CHAR conversion, including special characters
     private Character parseChar(String value) {
-        if (value == null || value.isEmpty()) {
-            return "";
-        }
-
         // Handle special characters
         switch (value) {
             case "\\n":
@@ -2902,42 +2980,55 @@ class Tokenizer {
                 case "true":
                     tokenType = TokenType.CONSTANT_TRUE;
                     break;
+
                 case "false":
                     tokenType = TokenType.CONSTANT_FALSE;
                     break;
+
                 case "int":
                     tokenType = TokenType.INT;
                     break;
+
                 case "float":
                     tokenType = TokenType.FLOAT;
                     break;
+
                 case "char":
                     tokenType = TokenType.CHAR;
                     break;
+
                 case "bool":
                     tokenType = TokenType.BOOL;
                     break;
+
                 case "string":
                     tokenType = TokenType.STRING;
                     break;
+
                 case "void":
                     tokenType = TokenType.VOID;
                     break;
+
                 case "if":
                     tokenType = TokenType.IF;
                     break;
+
                 case "else":
                     tokenType = TokenType.ELSE;
                     break;
+
                 case "while":
                     tokenType = TokenType.WHILE;
                     break;
+
                 case "do":
                     tokenType = TokenType.DO;
                     break;
+
                 case "return":
                     tokenType = TokenType.RETURN;
                     break;
+                    
                 default:
                     tokenType = TokenType.IDENTIFIER;
                     break;
