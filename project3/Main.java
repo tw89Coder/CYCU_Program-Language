@@ -346,6 +346,11 @@ class TerminalNode extends ExpressionNode {
         this.output = null;
     }
 
+    public TerminalNode(ExpressionNode associatedNode) {
+        this.associatedNode = associatedNode;
+        this.output = null;
+    }
+
     public ExpressionNode getAssociatedNode() {
         return associatedNode;
     }
@@ -2075,15 +2080,15 @@ class Function {
 class ErrorMessage {
 
     public void lexicalError(char firstChar, int line) {
-        System.out.println("Line " + line + " : unrecognized token with first char : '" + firstChar + "'");
+        System.out.println("Line " + line + " : unrecognized token with first char '" + firstChar + "'");
     }
 
     public void syntacticalError(Token token) {
-        System.out.println("Line " + token.getLine() + " : unexpected token : '" + token.getName() + "'");
+        System.out.println("Line " + token.getLine() + " : unexpected token '" + token.getName() + "'");
     }
 
     public void semanticError(Token token) {
-        System.out.println("Line " + token.getLine() + " : undefined identifier : '" + token.getName() + "'");
+        System.out.println("Line " + token.getLine() + " : undefined identifier '" + token.getName() + "'");
     }
 }
 
@@ -4452,7 +4457,13 @@ class Parser {
                             isAccept = basicExpression(scope, basicExprFalse);
 
                             if (isAccept) {
-                                ternaryExpr.setCondition(binaryExpr);
+                                if (binaryExpr.getRight() == null) {
+                                    TerminalNode node = new TerminalNode(binaryExpr.getLeft());
+                                    ternaryExpr.setCondition(node);
+                                } else {
+                                    ternaryExpr.setCondition(binaryExpr);
+                                }
+                                
                                 ternaryExpr.setTrueExpression(basicExprTrue);
                                 ternaryExpr.setFalseExpression(basicExprFalse);
                             }
@@ -4474,7 +4485,7 @@ class Parser {
         if (isTest) System.out.println(">>> Enter rest_of_maybe_logical_OR_exp");
         boolean isAccept = false;
         
-        if (restOfMaybeLogicalANDExp(scope, binaryExpr)) {
+        if (restOfMaybeLogicalANDExp(scope, binaryExpr)) { // when binaryExpr go in, binaryExpr just have left node.
             boolean isStop = false;
 
             while (!isStop) {
