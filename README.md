@@ -1,5 +1,4 @@
 # CYCU_Program-Language
-To implement an interpreter.
 
 This program was developed by 10927262, Yi-Hung Lu. Its main function is to implement an interpreter following ourC grammar. I hope you find it useful!
 
