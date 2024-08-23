@@ -1,6 +1,8 @@
 # CYCU_Program-Language
 To implement an interpreter.
 
+This program was developed by 10927262, Yi-Hung Lu. Its main function is to implement an interpreter following ourC grammar. I hope you find it useful!
+
 - Project2 can pass all test case.
 
 - Project3 will be an abnormal stop at the last question(Hidden test data).
