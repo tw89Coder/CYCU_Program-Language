@@ -9,12 +9,17 @@
 
 與 `the lexical part` 中的 Constant 不同，我將原本的 Constant 細分為  
 > CONSTANT_INT,      // 23, 023 
-> CONSTANT_FLOAT,    // .0200, 0.200, 3.200 
-> CONSTANT_CHAR,     // 'c'
-> CONSTANT_STRING,   // "This is a string"
-> CONSTANT_FALSE,    // false
-> CONSTANT_TRUE      // true
 >
+> CONSTANT_FLOAT,    // .0200, 0.200, 3.200 
+>
+> CONSTANT_CHAR,     // 'c'
+> 
+> CONSTANT_STRING,   // "This is a string"
+> 
+> CONSTANT_FALSE,    // false
+> 
+> CONSTANT_TRUE      // true
+
 這是為了能夠在後續的 project 能夠更加方便進行計算。
 
 > [!NOTE] 
