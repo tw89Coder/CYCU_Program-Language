@@ -23,7 +23,7 @@
 這是為了能夠在後續的 project 能夠更加方便進行計算。
 
 > [!NOTE] 
-> 當我在進行 project3 時，我認為應該要將 `CONSTANT_FALSE` 與`CONSTANT_TRUE` 合併為 `CONSTANT_BOOLEAN` 比較適合。
+> 當我在進行 project3 時，我認為應該要將 `CONSTANT_FALSE` 與 `CONSTANT_TRUE` 合併為 `CONSTANT_BOOLEAN` 比較適合。
 
 ## Error Handling
 
