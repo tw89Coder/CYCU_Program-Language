@@ -18,15 +18,23 @@
 - **Language**
   - Java version "21.0.1"
 
-This program was developed by 10927262, Yi-Hung Lu. Its main function is to implement an interpreter following ourC grammar. I hope you find it useful!
+## Project Overview
 
-- Project2 can pass all test case.
+This program was developed by **10927262, Yi-Hung Lu**. Its main function is to implement an interpreter following ourC grammar. I hope you find it useful!
 
-- Project3 will be an abnormal stop at the last question(Hidden test data).
+### Project Status
 
-- Project4 no time to do it.
-  - But is also build tree node and get data.
-  - Can add list of class Define in class UserInput. (UserInput just store class Define, and not associate it)
-  - Maybe class scope should do some change. (For &a, &g)
-    - formal_parameter_list link actual_parameter_list, and synchronously update parameters.
-  - Make class FunctionCall extend ExpressionNode. It will associate the same name class Define in the class UserInput's define list.
+- **Project 2**
+  - Passes all test cases.
+
+- **Project 3**
+  - Encounters an abnormal stop at the last question (hidden test data).
+
+- **Project 4**
+  - Not completed due to time constraints.
+  - However, it involves building tree nodes and retrieving data.
+  - Suggestions for improvement:
+    - Add a list of class `Define` in class `UserInput` (UserInput just stores class `Define` and does not associate it).
+    - Consider changes to class scope (for `&a`, `&g`).
+      - `formal_parameter_list` should link to `actual_parameter_list` and update parameters synchronously.
+    - Make class `FunctionCall` extend `ExpressionNode`. It will associate with the same name class `Define` in the `UserInput`'s define list.
