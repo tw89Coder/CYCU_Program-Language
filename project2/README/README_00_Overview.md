@@ -15,7 +15,7 @@ ourC Interpreter 是一個用於學習和教學目的的簡單直譯器。這個
 
 Project2 的架構分為以下幾個部分：
 
-1. **TokenType**     : toekn 的各種 type 的枚舉(grammar 中的 "the lexical part")。
+1. **TokenType**     : toekn 的各種 type 的枚舉 (grammar 中的 "the lexical part")。
 2. **Token**         : 儲存 token 的基本資料，用來建立 token。
 3. **Variable**      : 儲存 variable 的基本資料，用來建立 variable。
 4. **Array**         : 儲存 array 的基本資料，用來建立 array。
